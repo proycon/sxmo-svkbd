@@ -468,7 +468,7 @@ setup(void) {
 	if(!ww)
 		ww = sw;
 	if(!wh)
-		wh = sh * rows / 32;
+		wh = sh * rows / 16;
 
 	if(!wx)
 		wx = 0;
