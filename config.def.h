@@ -1,5 +1,5 @@
 static const Bool wmborder = True;
-static const char font[] = "-*-terminus-medium-r-normal-*-14-*-*-*-*-*-*-*";
+static const char font[] = "10x20";
 static const char normbgcolor[] = "#cccccc";
 static const char normfgcolor[] = "#000000";
 static const char pressbgcolor[] = "#0000cc";
