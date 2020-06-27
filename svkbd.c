@@ -77,6 +77,7 @@ static void leavenotify(XEvent *e);
 static void press(Key *k, KeySym mod);
 static void run(void);
 static void setup(void);
+static void togglelayer();
 static int textnw(const char *text, uint len);
 static void unpress(Key *k, KeySym mod);
 static void updatekeys();
@@ -354,6 +355,7 @@ initfont(const char *fontstr) {
 			xfonts++;
 		}
 	} else {
+        fprintf(stderr, "Fontset not found\n");
 		if(dc.font.xfont)
 			XFreeFont(dpy, dc.font.xfont);
 		dc.font.xfont = NULL;
@@ -639,7 +641,7 @@ main(int argc, char *argv[]) {
 	signal(SIGTERM, sigterm);
 	for (i = 1; argv[i]; i++) {
 		if(!strcmp(argv[i], "-v")) {
-			die("svkbd-"VERSION", © 2006-2016 svkbd engineers,"
+			die("svkbd-"VERSION", © 2006-2020 svkbd engineers,"
 				       " see LICENSE for details\n");
 		} else if(!strcmp(argv[i], "-d")) {
 			isdock = True;

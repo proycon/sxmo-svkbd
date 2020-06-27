@@ -1,7 +1,7 @@
 # svkbd version
 VERSION = 0.1
 
-LAYOUT ?= en
+LAYOUT ?= sxmo
 
 # Customize below to fit your system
 
