@@ -3,13 +3,12 @@
 .POSIX:
 
 NAME = svkbd
-VERSION = 0.1
+VERSION = 0.2
 
 include config.mk
 
 BIN = ${NAME}-${LAYOUT}
-SRC = ${NAME}.c
-OBJ = ${NAME}-${LAYOUT}.o
+SRC = drw.c util.c ${NAME}.c
 MAN1 = ${NAME}.1
 
 all: ${BIN}
@@ -24,15 +23,8 @@ options:
 config.h:
 	cp config.def.h $@
 
-${BIN}: config.h ${OBJ}
-
-${OBJ}: config.h
-
-${OBJ}:
-	${CC} -o $@ -c ${SRC} ${SVKBD_CFLAGS} ${SVKBD_CPPFLAGS}
-
 ${BIN}:
-	${CC} -o ${BIN} ${OBJ} ${SVKBD_LDFLAGS}
+	${CC} -o $@ ${SRC} ${SVKBD_CFLAGS} ${SVKBD_CPPFLAGS} ${SVKBD_LDFLAGS}
 
 clean:
 	rm -f ${NAME}-?? ${NAME}-??.o ${OBJ}
