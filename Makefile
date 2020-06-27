@@ -3,7 +3,7 @@
 
 include config.mk
 
-SRC = svkbd.c
+SRC = drw.c svkbd.c util.c
 
 all: options svkbd-${LAYOUT}
 

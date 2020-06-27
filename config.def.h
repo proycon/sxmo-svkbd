@@ -1,9 +1,12 @@
 static const Bool wmborder = True;
-static const char font[] = "10x20";
-static const char normbgcolor[] = "#cccccc";
-static const char normfgcolor[] = "#000000";
-static const char pressbgcolor[] = "#0000cc";
-static const char pressfgcolor[] = "#ffffff";
-static const char highlightbgcolor[] = "#0000cc";
-static const char highlightfgcolor[] = "#ffffff";
+static int fontsize = 16;
+static const char *fonts[] = {
+	"monospace:size=16"
+};
+static const char *colors[SchemeLast][2] = {
+	/*     fg         bg       */
+	[SchemeNorm] = { "#58a7c6", "#14313d" },
+	[SchemePress] = { "#ffffff", "#005577" },
+	[SchemeHighlight] = { "#58a7c6", "#005577" },
+};
 
