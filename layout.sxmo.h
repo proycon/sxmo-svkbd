@@ -37,11 +37,11 @@ static Key keys_en[40] = {
         { 0, XK_m, 1 },
         /*{ "/?", XK_slash, 1 },*/
         { "Tab", XK_Tab, 1 },
-        { "<-", XK_BackSpace, 2 },
+        { "⇍ Bksp", XK_BackSpace, 2 },
 
         { 0 }, /* New row */
         { "↺", XK_Cancel, 1},
-        { "⇫", XK_Shift_L, 1 },
+        { "Shft", XK_Shift_L, 1 },
         /*{ "L", XK_Left, 1 },*/
         { "↓", XK_Down, 1 },
         { "↑", XK_Up, 1 },
@@ -50,7 +50,7 @@ static Key keys_en[40] = {
         { "Esc", XK_Escape, 1 },
         { "Ctrl", XK_Control_L, 1 },
         /*{ "Alt", XK_Alt_L, 1 },*/
-        { "Enter", XK_Return, 2 },
+        { "↲ Enter", XK_Return, 2 },
 };
 
 static Key keys_symbols[40] = {
@@ -80,19 +80,19 @@ static Key keys_symbols[40] = {
 
   { 0 }, /* New row */
 
-  { "â", XK_dead_circumflex, 1 },
-  { "ä", XK_dead_diaeresis, 1 },
+  { "", XK_Shift_L|XK_bar, 1 },
+  { "⇤", XK_Home, 1 },
   { "←", XK_Left, 1 },
   { "→", XK_Right, 1 },
-  { "á", XK_dead_acute, 1 },
-  { "à", XK_dead_grave, 1 },
-  { "ã", XK_dead_tilde, 1 },
+  { "⇥", XK_End, 1 },
+  { "⇊", XK_Next, 1 },
+  { "⇈", XK_Prior, 1 },
   { "Tab", XK_Tab, 1 },
-  { "↚", XK_BackSpace, 2 },
+  { "⇍ Bksp", XK_BackSpace, 2 },
 
   { 0 }, /* New row */
   { "↺", XK_Cancel, 1},
-  { "⇫", XK_Shift_L, 1 },
+  { "Shft", XK_Shift_L, 1 },
   /*{ "L", XK_Left, 1 },*/
   { "↓", XK_Down, 1 },
   { "↑", XK_Up, 1 },
