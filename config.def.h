@@ -1,7 +1,7 @@
 static const Bool wmborder = True;
-static int fontsize = 12;
+static int fontsize = 16;
 static const char *fonts[] = {
-	"monospace:size=12"
+	"monospace:size=16"
 };
 static const char *colors[SchemeLast][2] = {
 	/*     fg         bg       */
