@@ -14,11 +14,15 @@
 #include <X11/Xproto.h>
 #include <X11/extensions/XTest.h>
 #include <X11/Xft/Xft.h>
+#ifdef XINERAMA
+#include <X11/extensions/Xinerama.h>
+#endif
 #include <signal.h>
 #include <sys/select.h>
 
 #include "drw.h"
 #include "util.h"
+
 
 
 /* macros */
@@ -402,22 +406,33 @@ setup(void) {
 	int i, j, sh, sw;
 	XWMHints *wmh;
 
+	#if XINERAMA
+	XineramaScreenInfo *info = NULL;
+	#endif
 
 	/* init screen */
 	screen = DefaultScreen(dpy);
 	root = RootWindow(dpy, screen);
-	sw = DisplayWidth(dpy, screen);
-	sh = DisplayHeight(dpy, screen);
+	#if XINERAMA
+	if(XineramaIsActive(dpy)) {
+		info = XineramaQueryScreens(dpy, &i);
+		sw = info[0].width;
+		sh = info[0].height;
+		XFree(info);
+	} else
+	#endif
+	{
+		sw = DisplayWidth(dpy, screen);
+		sh = DisplayHeight(dpy, screen);
+	}
     drw = drw_create(dpy, screen, root, sw, sh);
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
     drw_setscheme(drw, scheme[SchemeNorm]);
 
 	/* init appearance */
-	for (j = 0; j < SchemeLast; j++) {
-		printf("init %d\n", j);
+	for (j = 0; j < SchemeLast; j++)
 		scheme[j] = drw_scm_create(drw, colors[j], 2);
-	}
 
 	/* init atoms */
 	if(isdock) {
