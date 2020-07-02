@@ -54,7 +54,7 @@ static Key keys_en[KEYS] = {
         { "↲ Enter", XK_Return, 2 },
 };
 
-#define OVERLAYS 52
+#define OVERLAYS 107
 static Key overlay[OVERLAYS] = {
         { 0, XK_a }, //Overlay for a
         //---
@@ -68,7 +68,6 @@ static Key overlay[OVERLAYS] = {
         { "ă", XK_abreve },
         { "å", XK_aring },
         { "æ", XK_ae },
-        //--
         { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
         //--
         { 0, XK_e }, //Overlay for e
@@ -79,20 +78,18 @@ static Key overlay[OVERLAYS] = {
         { "ë", XK_ediaeresis },
         { "ę", XK_eogonek },
         { "ē", XK_emacron },
+        { "ė", XK_eabovedot },
+        { 0, XK_Cancel },
         //--
-        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
-        //--
-        { 0, XK_y }, //Overlay for y
+        { 0, XK_y }, //New overlay
         //---
         { "ỳ", XK_ygrave },
         { "ý", XK_yacute },
         { "ŷ", XK_ycircumflex },
         { "ÿ", XK_ydiaeresis },
+        { 0, XK_Cancel },
         //--
-        //--
-        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
-        //--
-        { 0, XK_u }, //Overlay for u
+        { 0, XK_u }, //New overlay
         //---
         { "ù", XK_ugrave },
         { "ú", XK_uacute },
@@ -101,10 +98,11 @@ static Key overlay[OVERLAYS] = {
         { "ų", XK_uogonek },
         { "ū", XK_umacron },
         { "ů", XK_uring},
+        { "ŭ", XK_ubreve},
+        { "ű", XK_udoubleacute },
+        { 0, XK_Cancel },
         //--
-        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
-        //--
-        { 0, XK_i }, //Overlay for i
+        { 0, XK_i }, //New overlay
         //---
         { "ì", XK_igrave },
         { "í", XK_iacute },
@@ -112,10 +110,10 @@ static Key overlay[OVERLAYS] = {
         { "ï", XK_idiaeresis },
         { "į", XK_iogonek },
         { "ī", XK_imacron },
+        { "ı", XK_idotless },
+        { 0, XK_Cancel },
         //--
-        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
-        //--
-        { 0, XK_o }, //Overlay for o
+        { 0, XK_o }, //New overlay
         //---
         { "ò", XK_ograve },
         { "ó", XK_oacute },
@@ -125,6 +123,79 @@ static Key overlay[OVERLAYS] = {
         { "õ", XK_otilde },
         { "ō", XK_omacron },
         { "ø", XK_oslash },
+        { "ő", XK_odoubleacute },
+        { "œ", XK_oe },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_d }, //New overlay
+        //---
+        { "ď", XK_dcaron },
+        { "ð", XK_eth },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_c }, //New overlay
+        //---
+        { "ç", XK_ccedilla },
+        { "ĉ", XK_ccircumflex },
+        { "č", XK_ccaron },
+        { "ć", XK_cacute },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_s }, //New overlay
+        //---
+        { "ş", XK_scedilla },
+        { "ŝ", XK_scircumflex },
+        { "š", XK_scaron },
+        { "ś", XK_sacute },
+        { "ß", XK_ssharp },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //---
+        { 0, XK_z }, //New overlay
+        //---
+        { "ž", XK_zcaron },
+        { "ż", XK_zabovedot },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_n }, //New overlay
+        //---
+        { "ñ", XK_ntilde },
+        { "ń", XK_nacute },
+        { "ň", XK_ncaron },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //
+        { 0, XK_t }, //New overlay
+        //---
+        { "ț", XK_tcedilla },
+        { "ť", XK_tcaron },
+        { "þ", XK_thorn },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //----
+        { 0, XK_g }, //New overlay
+        //---
+        { "ĝ", XK_gcircumflex },
+        { "ğ", XK_gbreve },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //
+        { 0, XK_h }, //New overlay
+        //---
+        { "ĥ", XK_hcircumflex },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //
+        { 0, XK_j }, //New overlay
+        //---
+        { "ĵ", XK_jcircumflex },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_l }, //New overlay
+        //---
+        { "ł", XK_lstroke },
+        { "ľ", XK_lcaron },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_r }, //New overlay
+        //---
+        { "ř", XK_rcaron },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
 };
 
 static Key keys_symbols[KEYS] = {
