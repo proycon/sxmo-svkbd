@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <X11/keysym.h>
+#include <X11/keysymdef.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -18,6 +19,7 @@
 #include <X11/extensions/Xinerama.h>
 #endif
 #include <signal.h>
+#include <time.h>
 #include <sys/select.h>
 
 #include "drw.h"
@@ -66,7 +68,11 @@ static void leavenotify(XEvent *e);
 static void press(Key *k, KeySym mod);
 static void run(void);
 static void setup(void);
-static void togglelayer();
+static void simulate_keypress(KeySym keysym);
+static void simulate_keyrelease(KeySym keysym);
+static void showoverlay(int idx);
+static void hideoverlay();
+static void cyclelayer();
 static void unpress(Key *k, KeySym mod);
 static void updatekeys();
 
@@ -87,11 +93,16 @@ static Window root, win;
 static Clr* scheme[SchemeLast];
 static Bool running = True, isdock = False;
 static KeySym pressedmod = 0;
+static time_t pressbegin = 0;
+static int currentlayer = 0;
+static int currentoverlay = -1; // -1 = no overlay
+static int tmp_keycode = 1;
 static int rows = 0, ww = 0, wh = 0, wx = 0, wy = 0;
 static char *name = "svkbd";
 
+static KeySym ispressingkeysym;
+
 Bool ispressing = False;
-Bool baselayer = True;
 Bool sigtermd = False;
 
 /* configuration, allows nested code to access above variables */
@@ -284,51 +295,101 @@ findkey(int x, int y) {
 }
 
 
+int
+hasoverlay(Key *k) {
+	int begin, i;
+	begin = 0;
+	for(i = 0; i < OVERLAYS; i++) {
+		if(overlay[i].keysym == XK_Cancel) {
+			begin = i+1;
+		} else if(overlay[i].keysym == k->keysym) {
+			return begin+1;
+		}
+	}
+	return -1;
+}
+
 
 void
 leavenotify(XEvent *e) {
+	if (currentoverlay != -1) {
+		hideoverlay();
+	}
 	unpress(NULL, 0);
 }
 
 void
 press(Key *k, KeySym mod) {
 	int i;
+	int overlayidx = -1;
 	k->pressed = !k->pressed;
 
 	if(!IsModifierKey(k->keysym)) {
-		for(i = 0; i < LENGTH(keys); i++) {
-			if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
-				XTestFakeKeyEvent(dpy,
-					XKeysymToKeycode(dpy, keys[i].keysym),
-					True, 0);
+		if (currentoverlay == -1)
+			overlayidx = hasoverlay(k);
+		if (overlayidx != -1) {
+			if (!pressbegin) {
+				//record the begin of the press, don't simulate the actual keypress yet
+				pressbegin = time(NULL);
+				ispressingkeysym = k->keysym;
 			}
-		}
-		pressedmod = mod;
-		if(pressedmod) {
-			XTestFakeKeyEvent(dpy, XKeysymToKeycode(dpy, mod),
-					True, 0);
-		}
-		XTestFakeKeyEvent(dpy, XKeysymToKeycode(dpy, k->keysym), True, 0);
+		} else {
 
-		for(i = 0; i < LENGTH(keys); i++) {
-			if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
-				XTestFakeKeyEvent(dpy,
-					XKeysymToKeycode(dpy, keys[i].keysym),
-					False, 0);
+			for(i = 0; i < LENGTH(keys); i++) {
+				if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
+					simulate_keypress(keys[i].keysym);
+				}
+			}
+			pressedmod = mod;
+			if(pressedmod) {
+				simulate_keypress(mod);
+			}
+			simulate_keypress(k->keysym);
+
+			for(i = 0; i < LENGTH(keys); i++) {
+				if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
+					simulate_keyrelease(keys[i].keysym);
+				}
 			}
 		}
 	}
 	drawkey(k);
 }
 
+int tmp_remap(KeySym keysym) {
+	XChangeKeyboardMapping(dpy, tmp_keycode, 1, &keysym, 1);
+	XSync(dpy, False);
+	return tmp_keycode;
+}
+
+void
+simulate_keypress(KeySym keysym) {
+	KeyCode code = XKeysymToKeycode(dpy, keysym);
+	if (code == 0)
+		code = tmp_remap(keysym);
+	XTestFakeKeyEvent(dpy, code, True, 0);
+}
+
+void
+simulate_keyrelease(KeySym keysym) {
+	KeyCode code = XKeysymToKeycode(dpy, keysym);
+	if (code == 0)
+		code = tmp_remap(keysym);
+	XTestFakeKeyEvent(dpy, code, False, 0);
+}
+
+
+
 void
 unpress(Key *k, KeySym mod) {
 	int i;
+	time_t now;
+	int duration = 0;
 
 	if(k != NULL) {
 		switch(k->keysym) {
 		case XK_Cancel:
-			togglelayer();
+			cyclelayer();
 			break;
 		case XK_Break:
 		  running = False;
@@ -337,11 +398,35 @@ unpress(Key *k, KeySym mod) {
 		}
 	}
 
+
+	if (pressbegin && k->keysym == ispressingkeysym) {
+		if (currentoverlay == -1) {
+			now = time(0);
+			duration = now - pressbegin;
+			if (duration >= overlay_delay) {
+				showoverlay(hasoverlay(k));
+				pressbegin = 0;
+				return;
+			} else {
+				//simulate the press event, as we postponed it earlier in press()
+				for(i = 0; i < LENGTH(keys); i++) {
+					if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
+						simulate_keypress(keys[i].keysym);
+					}
+				}
+				pressedmod = mod;
+				if(pressedmod) {
+					simulate_keypress(mod);
+				}
+				simulate_keypress(k->keysym);
+			}
+		}
+		pressbegin = 0;
+	}
+
 	for(i = 0; i < LENGTH(keys); i++) {
 		if(keys[i].pressed && !IsModifierKey(keys[i].keysym)) {
-			XTestFakeKeyEvent(dpy,
-				XKeysymToKeycode(dpy, keys[i].keysym),
-				False, 0);
+			simulate_keyrelease(keys[i].keysym);
 			keys[i].pressed = 0;
 			drawkey(&keys[i]);
 			break;
@@ -349,21 +434,21 @@ unpress(Key *k, KeySym mod) {
 	}
 	if(i != LENGTH(keys)) {
 		if(pressedmod) {
-			XTestFakeKeyEvent(dpy,
-				XKeysymToKeycode(dpy, pressedmod),
-				False, 0);
+			simulate_keyrelease(mod);
 		}
 		pressedmod = 0;
 
 		for(i = 0; i < LENGTH(keys); i++) {
 			if(keys[i].pressed) {
-				XTestFakeKeyEvent(dpy,
-					XKeysymToKeycode(dpy,
-						keys[i].keysym), False, 0);
+				simulate_keyrelease(keys[i].keysym);
 				keys[i].pressed = 0;
 				drawkey(&keys[i]);
 			}
 		}
+	}
+
+	if (currentoverlay != -1 && k->keysym != ispressingkeysym) {
+		hideoverlay();
 	}
 }
 
@@ -504,6 +589,31 @@ setup(void) {
 	drw_resize(drw, ww, wh);
 	updatekeys();
 	drawkeyboard();
+
+	//find an unused keycode to use as a temporary keycode (derived from source: https://stackoverflow.com/questions/44313966/c-xtest-emitting-key-presses-for-every-unicode-character)
+	KeySym *keysyms = NULL;
+	int keysyms_per_keycode = 0;
+	int keycode_low, keycode_high;
+	Bool key_is_empty;
+	int symindex;
+	XDisplayKeycodes(dpy, &keycode_low, &keycode_high);
+	keysyms = XGetKeyboardMapping(dpy, keycode_low, keycode_high - keycode_low, &keysyms_per_keycode);
+	for(i = keycode_low; i <= keycode_high; i++) {
+		key_is_empty = True;
+		for(j = 0; j < keysyms_per_keycode; j++) {
+			symindex = (i - keycode_low) * keysyms_per_keycode + j;
+			if(keysyms[symindex] != 0) {
+				key_is_empty = False;
+			} else {
+				break;
+			}
+		}
+		if (key_is_empty) {
+			tmp_keycode = i;
+			break;
+		}
+	}
+	XFree(keysyms);
 }
 
 
@@ -536,11 +646,47 @@ usage(char *argv0) {
 }
 
 void
-togglelayer() {
-	memcpy(&keys, baselayer ? &keys_symbols : &keys_en, sizeof(keys_en));
+cyclelayer() {
+	currentlayer++;
+	if (currentlayer >= LAYERS)
+		currentlayer = 0;
+	memcpy(&keys, layers[currentlayer], sizeof(keys_en));
 	updatekeys();
 	drawkeyboard();
-	baselayer = !baselayer;
+}
+
+void
+showoverlay(int idx) {
+	int i,j;
+	//unpress existing key (visually only)
+	for(i = 0; i < LENGTH(keys); i++) {
+		if(keys[i].pressed && !IsModifierKey(keys[i].keysym)) {
+			keys[i].pressed = 0;
+			drawkey(&keys[i]);
+			break;
+		}
+	}
+
+	for (i = idx, j=0; i < OVERLAYS; i++, j++) {
+		if (overlay[i].keysym == XK_Cancel) {
+			break;
+		}
+		while (keys[j].keysym == 0) j++;
+		keys[j].label = overlay[i].label;
+		keys[j].keysym = overlay[i].keysym;
+	}
+	printf("SHOWING OVERLAY %d", idx);
+	fflush(stdout);
+	updatekeys();
+	drawkeyboard();
+	currentoverlay = idx;
+}
+
+void
+hideoverlay() {
+	currentoverlay = -1;
+	currentlayer = -1;
+	cyclelayer();
 }
 
 void

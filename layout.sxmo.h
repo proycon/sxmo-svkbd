@@ -1,6 +1,7 @@
-static Key keys[40] = { NULL };
+#define KEYS 40
+static Key keys[KEYS] = { NULL };
 
-static Key keys_en[40] = {
+static Key keys_en[KEYS] = {
         { 0, XK_q, 1 },
         { 0, XK_w, 1 },
         { 0, XK_e, 1 },
@@ -53,7 +54,80 @@ static Key keys_en[40] = {
         { "↲ Enter", XK_Return, 2 },
 };
 
-static Key keys_symbols[40] = {
+#define OVERLAYS 52
+static Key overlay[OVERLAYS] = {
+        { 0, XK_a }, //Overlay for a
+        //---
+        { "à", XK_agrave },
+        { "á", XK_aacute },
+        { "â", XK_acircumflex },
+        { "ä", XK_adiaeresis },
+        { "ą", XK_aogonek },
+        { "ã", XK_atilde },
+        { "ā", XK_amacron },
+        { "ă", XK_abreve },
+        { "å", XK_aring },
+        { "æ", XK_ae },
+        //--
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_e }, //Overlay for e
+        //---
+        { "è", XK_egrave },
+        { "é", XK_eacute },
+        { "ê", XK_ecircumflex },
+        { "ë", XK_ediaeresis },
+        { "ę", XK_eogonek },
+        { "ē", XK_emacron },
+        //--
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_y }, //Overlay for y
+        //---
+        { "ỳ", XK_ygrave },
+        { "ý", XK_yacute },
+        { "ŷ", XK_ycircumflex },
+        { "ÿ", XK_ydiaeresis },
+        //--
+        //--
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_u }, //Overlay for u
+        //---
+        { "ù", XK_ugrave },
+        { "ú", XK_uacute },
+        { "û", XK_ucircumflex },
+        { "ü", XK_udiaeresis },
+        { "ų", XK_uogonek },
+        { "ū", XK_umacron },
+        { "ů", XK_uring},
+        //--
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_i }, //Overlay for i
+        //---
+        { "ì", XK_igrave },
+        { "í", XK_iacute },
+        { "î", XK_icircumflex },
+        { "ï", XK_idiaeresis },
+        { "į", XK_iogonek },
+        { "ī", XK_imacron },
+        //--
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+        { 0, XK_o }, //Overlay for o
+        //---
+        { "ò", XK_ograve },
+        { "ó", XK_oacute },
+        { "ô", XK_ocircumflex },
+        { "ö", XK_odiaeresis },
+        { "ǫ", XK_ogonek },
+        { "õ", XK_otilde },
+        { "ō", XK_omacron },
+        { "ø", XK_oslash },
+};
+
+static Key keys_symbols[KEYS] = {
   { "1!", XK_1, 1 },
   { "2@", XK_2, 1 },
   { "3#", XK_3, 1 },
@@ -102,6 +176,12 @@ static Key keys_symbols[40] = {
   { "Ctrl", XK_Control_L, 1 },
   /*{ "Alt", XK_Alt_L, 1 },*/
   { "↲ Enter", XK_Return, 2 },
+};
+
+#define LAYERS 2
+static Key* layers[LAYERS] = {
+    keys_en,
+    keys_symbols,
 };
 
 Buttonmod buttonmods[] = {
