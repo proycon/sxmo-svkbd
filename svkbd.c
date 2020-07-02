@@ -93,7 +93,7 @@ static Window root, win;
 static Clr* scheme[SchemeLast];
 static Bool running = True, isdock = False;
 static KeySym pressedmod = 0;
-static time_t pressbegin = 0;
+static clock_t pressbegin = 0;
 static int currentlayer = 0;
 static int currentoverlay = -1; // -1 = no overlay
 static int tmp_keycode = 1;
@@ -296,13 +296,13 @@ findkey(int x, int y) {
 
 
 int
-hasoverlay(Key *k) {
+hasoverlay(KeySym keysym) {
 	int begin, i;
 	begin = 0;
 	for(i = 0; i < OVERLAYS; i++) {
 		if(overlay[i].keysym == XK_Cancel) {
 			begin = i+1;
-		} else if(overlay[i].keysym == k->keysym) {
+		} else if(overlay[i].keysym == keysym) {
 			return begin+1;
 		}
 	}
@@ -326,11 +326,11 @@ press(Key *k, KeySym mod) {
 
 	if(!IsModifierKey(k->keysym)) {
 		if (currentoverlay == -1)
-			overlayidx = hasoverlay(k);
+			overlayidx = hasoverlay(k->keysym);
 		if (overlayidx != -1) {
 			if (!pressbegin) {
 				//record the begin of the press, don't simulate the actual keypress yet
-				pressbegin = time(NULL);
+				pressbegin = clock();
 				ispressingkeysym = k->keysym;
 			}
 		} else {
@@ -383,8 +383,8 @@ simulate_keyrelease(KeySym keysym) {
 void
 unpress(Key *k, KeySym mod) {
 	int i;
-	time_t now;
-	int duration = 0;
+	clock_t now;
+	double duration = 0.0;
 
 	if(k != NULL) {
 		switch(k->keysym) {
@@ -401,13 +401,9 @@ unpress(Key *k, KeySym mod) {
 
 	if (pressbegin && k->keysym == ispressingkeysym) {
 		if (currentoverlay == -1) {
-			now = time(0);
-			duration = now - pressbegin;
-			if (duration >= overlay_delay) {
-				showoverlay(hasoverlay(k));
-				pressbegin = 0;
-				return;
-			} else {
+			now = clock();
+			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
+			if (duration < overlay_delay) {
 				//simulate the press event, as we postponed it earlier in press()
 				for(i = 0; i < LENGTH(keys); i++) {
 					if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
@@ -458,11 +454,13 @@ run(void) {
 	int xfd;
 	fd_set fds;
 	struct timeval tv;
+	time_t now;
+	double duration = 0.0;
 
 
 	xfd = ConnectionNumber(dpy);
 	tv.tv_usec = 0;
-	tv.tv_sec = 2;
+	tv.tv_sec = 1;
 
 	//XSync(dpy, False);
 	XFlush(dpy);
@@ -478,6 +476,15 @@ run(void) {
 				}
 			}
 		}
+        if (ispressing && ispressingkeysym) {
+            now = clock();
+			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
+            if (duration >= overlay_delay) {
+                showoverlay(hasoverlay(ispressingkeysym));
+                pressbegin = 0;
+                ispressingkeysym = 0;
+            }
+        }
 	}
 }
 
@@ -675,8 +682,6 @@ showoverlay(int idx) {
 		keys[j].label = overlay[i].label;
 		keys[j].keysym = overlay[i].keysym;
 	}
-	printf("SHOWING OVERLAY %d", idx);
-	fflush(stdout);
 	updatekeys();
 	drawkeyboard();
 	currentoverlay = idx;
