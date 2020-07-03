@@ -516,7 +516,7 @@ run(void) {
 				if (debug) { printf("press duration %f\n", duration); fflush(stdout); }
 				cyclemodidx = iscyclemod(ispressingkeysym);
 				if (cyclemodidx != -1) {
-					cyclemod(cyclemodidx);
+					cyclemod();
 				} else {
 					showoverlay(hasoverlay(ispressingkeysym));
 				}
@@ -705,7 +705,7 @@ cyclelayer() {
 void
 cyclemod() {
     int i;
-	//unpress existing keys
+	//unpress all pressed keys
 	for(i = 0; i < LENGTH(keys); i++) {
 		if(keys[i].pressed) {
 			keys[i].pressed = 0;
@@ -713,6 +713,8 @@ cyclemod() {
 		}
 	}
     pressedmod = 0;
+	pressbegin = 0;
+	ispressingkeysym = 0;
 	currentcyclemod++;
 	if (currentcyclemod >= CYCLEMODS)
 		currentcyclemod = 0;
