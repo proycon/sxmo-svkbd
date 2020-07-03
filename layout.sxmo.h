@@ -38,7 +38,7 @@ static Key keys_en[KEYS] = {
         { 0, XK_m, 1 },
         /*{ "/?", XK_slash, 1 },*/
         { "Tab", XK_Tab, 1 },
-        { "⇍ Bksp", XK_BackSpace, 2 },
+        { "⌫Bksp", XK_BackSpace, 2 },
 
         { 0 }, /* New row */
         { "↺", XK_Cancel, 1},
@@ -288,7 +288,7 @@ static Key keys_symbols[KEYS] = {
 
   { 0 }, /* New row */
 
-  { "🙂", 0x101f642, 1 },
+  { "☺", 0x101f642, 1 },
   { "⇤", XK_Home, 1 },
   { "←", XK_Left, 1 },
   { "→", XK_Right, 1 },
@@ -296,7 +296,7 @@ static Key keys_symbols[KEYS] = {
   { "⇊", XK_Next, 1 },
   { ";:", XK_colon, 1 },
   { "Tab", XK_Tab, 1 },
-  { "⇍ Bksp", XK_BackSpace, 2 },
+  { "⌫Bksp", XK_BackSpace, 2 },
 
   { 0 }, /* New row */
   { "↺", XK_Cancel, 1},
@@ -323,16 +323,16 @@ static Key keys_functions[KEYS] = {
 
   { 0 }, /* New row */
 
-  { "⏵", XF86XK_AudioPlay, 1 },
-  { "⏺", XF86XK_AudioRecord, 1 },
-  { "⏹", XF86XK_AudioStop, 1 },
-  { "⏮", XF86XK_AudioPrev, 1 },
-  { "⏭", XF86XK_AudioNext, 1 },
-  { "M", XF86XK_AudioMute, 1 },
-  { "V-", XF86XK_AudioLowerVolume, 1 },
-  { "V+", XF86XK_AudioRaiseVolume, 1 },
-  { "B-", XF86XK_MonBrightnessDown, 1 },
-  { "B+", XF86XK_MonBrightnessUp, 1 },
+  { "▶", XF86XK_AudioPlay, 1 },
+  { "●", XF86XK_AudioRecord, 1 },
+  { "■", XF86XK_AudioStop, 1 },
+  { "◂◂", XF86XK_AudioPrev, 1 },
+  { "▸▸", XF86XK_AudioNext, 1 },
+  { "♫M", XF86XK_AudioMute, 1 },
+  { "♫-", XF86XK_AudioLowerVolume, 1 },
+  { "♫+", XF86XK_AudioRaiseVolume, 1 },
+  { "☀-", XF86XK_MonBrightnessDown, 1 },
+  { "☀+", XF86XK_MonBrightnessUp, 1 },
 
   { 0 }, /* New row */
 
@@ -344,7 +344,7 @@ static Key keys_functions[KEYS] = {
   { "⇊", XK_Next, 1 },
   { "⇈", XK_Prior, 1 },
   { "Tab", XK_Tab, 1 },
-  { "⇍ Bksp", XK_BackSpace, 2 },
+  { "⌫Bksp", XK_BackSpace, 2 },
 
   { 0 }, /* New row */
   { "↺", XK_Cancel, 1},
