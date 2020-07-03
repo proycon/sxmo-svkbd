@@ -522,6 +522,30 @@ setup(void) {
 		die("no fonts could be loaded.");
     drw_setscheme(drw, scheme[SchemeNorm]);
 
+	//find an unused keycode to use as a temporary keycode (derived from source: https://stackoverflow.com/questions/44313966/c-xtest-emitting-key-presses-for-every-unicode-character)
+	KeySym *keysyms = NULL;
+	int keysyms_per_keycode = 0;
+	int keycode_low, keycode_high;
+	Bool key_is_empty;
+	int symindex;
+	XDisplayKeycodes(dpy, &keycode_low, &keycode_high);
+	keysyms = XGetKeyboardMapping(dpy, keycode_low, keycode_high - keycode_low, &keysyms_per_keycode);
+	for(i = keycode_low; i <= keycode_high; i++) {
+		key_is_empty = True;
+		for(j = 0; j < keysyms_per_keycode; j++) {
+			symindex = (i - keycode_low) * keysyms_per_keycode + j;
+			if(keysyms[symindex] != 0) {
+				key_is_empty = False;
+			} else {
+				break;
+			}
+		}
+		if (key_is_empty) {
+			tmp_keycode = i;
+			break;
+		}
+	}
+
 	/* init appearance */
 	for (j = 0; j < SchemeLast; j++)
 		scheme[j] = drw_scm_create(drw, colors[j], 2);
@@ -580,6 +604,7 @@ setup(void) {
 	XSetWMProperties(dpy, win, &str, &str, NULL, 0, sizeh, wmh,
 			ch);
 
+    XFree(keysyms);
 	XFree(ch);
 	XFree(wmh);
 	XFree(str.value);
@@ -596,31 +621,6 @@ setup(void) {
 	drw_resize(drw, ww, wh);
 	updatekeys();
 	drawkeyboard();
-
-	//find an unused keycode to use as a temporary keycode (derived from source: https://stackoverflow.com/questions/44313966/c-xtest-emitting-key-presses-for-every-unicode-character)
-	KeySym *keysyms = NULL;
-	int keysyms_per_keycode = 0;
-	int keycode_low, keycode_high;
-	Bool key_is_empty;
-	int symindex;
-	XDisplayKeycodes(dpy, &keycode_low, &keycode_high);
-	keysyms = XGetKeyboardMapping(dpy, keycode_low, keycode_high - keycode_low, &keysyms_per_keycode);
-	for(i = keycode_low; i <= keycode_high; i++) {
-		key_is_empty = True;
-		for(j = 0; j < keysyms_per_keycode; j++) {
-			symindex = (i - keycode_low) * keysyms_per_keycode + j;
-			if(keysyms[symindex] != 0) {
-				key_is_empty = False;
-			} else {
-				break;
-			}
-		}
-		if (key_is_empty) {
-			tmp_keycode = i;
-			break;
-		}
-	}
-	XFree(keysyms);
 }
 
 
