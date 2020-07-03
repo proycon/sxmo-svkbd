@@ -580,10 +580,10 @@ setup(void) {
 		sw = DisplayWidth(dpy, screen);
 		sh = DisplayHeight(dpy, screen);
 	}
-    drw = drw_create(dpy, screen, root, sw, sh);
+	drw = drw_create(dpy, screen, root, sw, sh);
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
-    drw_setscheme(drw, scheme[SchemeNorm]);
+	drw_setscheme(drw, scheme[SchemeNorm]);
 
 	//find an unused keycode to use as a temporary keycode (derived from source: https://stackoverflow.com/questions/44313966/c-xtest-emitting-key-presses-for-every-unicode-character)
 	KeySym *keysyms = NULL;
@@ -643,9 +643,9 @@ setup(void) {
 	wa.border_pixel = scheme[SchemeNorm][ColFg].pixel;
 	wa.background_pixel = scheme[SchemeNorm][ColBg].pixel;
 	win = XCreateWindow(dpy, root, wx, wy, ww, wh, 0,
-			    CopyFromParent, CopyFromParent, CopyFromParent,
-			    CWOverrideRedirect | CWBorderPixel |
-			    CWBackingPixel, &wa);
+			CopyFromParent, CopyFromParent, CopyFromParent,
+			CWOverrideRedirect | CWBorderPixel |
+			CWBackingPixel, &wa);
 	XSelectInput(dpy, win, StructureNotifyMask|ButtonReleaseMask|
 			ButtonPressMask|ExposureMask|LeaveWindowMask|
 			PointerMotionMask);
@@ -667,7 +667,7 @@ setup(void) {
 	XSetWMProperties(dpy, win, &str, &str, NULL, 0, sizeh, wmh,
 			ch);
 
-    XFree(keysyms);
+	XFree(keysyms);
 	XFree(ch);
 	XFree(wmh);
 	XFree(str.value);
@@ -728,7 +728,7 @@ cyclelayer() {
 
 void
 cyclemod() {
-    int i;
+	int i;
 	//unpress all pressed keys
 	for(i = 0; i < LENGTH(keys); i++) {
 		if(keys[i].pressed) {
@@ -736,7 +736,7 @@ cyclemod() {
 			drawkey(&keys[i]);
 		}
 	}
-    pressedmod = 0;
+	pressedmod = 0;
 	pressbegin.tv_sec = 0;
 	pressbegin.tv_usec = 0;
 	ispressingkeysym = 0;
@@ -827,10 +827,10 @@ main(int argc, char *argv[]) {
 			if(bitm & YNegative && wy == 0)
 				wy = -1;
 			i++;
-        } else if (!strcmp(argv[i], "-fn")) { /* font or font set */
+		} else if (!strcmp(argv[i], "-fn")) { /* font or font set */
 			fonts[0] = argv[++i];
 		} else if(!strcmp(argv[i], "-D")) {
-            debug = 1;
+			debug = 1;
 		} else if(!strcmp(argv[i], "-h")) {
 			usage(argv[0]);
 		}
