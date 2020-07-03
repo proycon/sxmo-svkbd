@@ -826,7 +826,7 @@ main(int argc, char *argv[]) {
 			if(bitm & YNegative && wy == 0)
 				wy = -1;
 			i++;
-        } else if (!strcmp(argv[i], "-fn"))  /* font or font set */
+        } else if (!strcmp(argv[i], "-fn")) { /* font or font set */
 			fonts[0] = argv[++i];
 		} else if(!strcmp(argv[i], "-h")) {
 			usage(argv[0]);
