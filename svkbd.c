@@ -22,6 +22,7 @@
 #include <signal.h>
 #include <time.h>
 #include <sys/select.h>
+#include <sys/time.h>
 
 #include "drw.h"
 #include "util.h"
@@ -69,6 +70,7 @@ static Key *findkey(int x, int y);
 static int iscyclemod(KeySym keysym);
 static void leavenotify(XEvent *e);
 static void press(Key *k, KeySym mod);
+static double get_press_duration();
 static void run(void);
 static void setup(void);
 static void simulate_keypress(KeySym keysym);
@@ -97,7 +99,7 @@ static Window root, win;
 static Clr* scheme[SchemeLast];
 static Bool running = True, isdock = False;
 static KeySym pressedmod = 0;
-static clock_t pressbegin = 0;
+static struct timeval pressbegin;
 static int currentlayer = 0;
 static int currentoverlay = -1; // -1 = no overlay
 static int currentcyclemod = 0;
@@ -334,6 +336,12 @@ leavenotify(XEvent *e) {
 	unpress(NULL, 0);
 }
 
+void record_press_begin(KeySym ks) {
+	//record the begin of the press, don't simulate the actual keypress yet
+	gettimeofday(&pressbegin, NULL);
+	ispressingkeysym = ks;
+}
+
 void
 press(Key *k, KeySym mod) {
 	int i;
@@ -341,24 +349,23 @@ press(Key *k, KeySym mod) {
 	k->pressed = !k->pressed;
 
 	if (debug) { printf("Begin press: %ld\n", k->keysym); fflush(stdout); }
-	pressbegin = 0;
+	pressbegin.tv_sec = 0;
+	pressbegin.tv_usec = 0;
 	ispressingkeysym = 0;
 
 	int cm = iscyclemod(k->keysym);
 	if (cm != -1) {
-		if (!pressbegin) {
+		if (!pressbegin.tv_sec && !pressbegin.tv_usec) {
 			//record the begin of the press, don't simulate the actual keypress yet
-			pressbegin = clock();
-			ispressingkeysym = k->keysym;
+			record_press_begin(k->keysym);
 		}
 	} else if(!IsModifierKey(k->keysym)) {
 		if (currentoverlay == -1)
 			overlayidx = hasoverlay(k->keysym);
 		if (overlayidx != -1) {
-			if (!pressbegin) {
+			if (!pressbegin.tv_sec && !pressbegin.tv_usec) {
 				//record the begin of the press, don't simulate the actual keypress yet
-				pressbegin = clock();
-				ispressingkeysym = k->keysym;
+				record_press_begin(k->keysym);
 			}
 		} else {
 			if (debug) { printf("Simulating press: %ld\n", k->keysym); fflush(stdout); }
@@ -410,12 +417,15 @@ simulate_keyrelease(KeySym keysym) {
 }
 
 
+double get_press_duration() {
+	struct timeval now;
+	gettimeofday(&now, NULL);
+	return (double) ((now.tv_sec * 1000000L + now.tv_usec) - (pressbegin.tv_sec * 1000000L + pressbegin.tv_usec)) / (double) 1000000L;
+}
 
 void
 unpress(Key *k, KeySym mod) {
 	int i;
-	clock_t now;
-	double duration = 0.0;
 
 	if(k != NULL) {
 		switch(k->keysym) {
@@ -430,11 +440,9 @@ unpress(Key *k, KeySym mod) {
 	}
 
 
-	if (pressbegin && k && k->keysym == ispressingkeysym) {
+	if ((pressbegin.tv_sec || pressbegin.tv_usec) && k && k->keysym == ispressingkeysym) {
 		if (currentoverlay == -1) {
-			now = clock();
-			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
-			if (duration < overlay_delay) {
+			if (get_press_duration() < overlay_delay) {
 				if (debug) { printf("Delayed simulation of press after release: %ld\n", k->keysym); fflush(stdout); }
 				//simulate the press event, as we postponed it earlier in press()
 				for(i = 0; i < LENGTH(keys); i++) {
@@ -447,11 +455,9 @@ unpress(Key *k, KeySym mod) {
 					simulate_keypress(mod);
 				}
 				simulate_keypress(k->keysym);
-                pressbegin = 0;
+				pressbegin.tv_sec = 0;
+				pressbegin.tv_usec = 0;
 			} else {
-				showoverlay(hasoverlay(ispressingkeysym));
-                pressbegin = 0;
-                ispressingkeysym = 0;
 				return;
 			}
 		}
@@ -500,7 +506,6 @@ run(void) {
 	int xfd;
 	fd_set fds;
 	struct timeval tv;
-	time_t now;
 	double duration = 0.0;
 	int cyclemodidx;
 
@@ -524,10 +529,9 @@ run(void) {
 			}
 		}
         if (ispressing && ispressingkeysym) {
-            now = clock();
-			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
+			duration = get_press_duration();
 			if (debug == 2) { printf("%f\n", duration); fflush(stdout); }
-            if (duration >= overlay_delay) {
+            if (get_press_duration() >= overlay_delay) {
 				if (debug) { printf("press duration %f\n", duration); fflush(stdout); }
 				cyclemodidx = iscyclemod(ispressingkeysym);
 				if (cyclemodidx != -1) {
@@ -535,7 +539,8 @@ run(void) {
 				} else {
 					showoverlay(hasoverlay(ispressingkeysym));
 				}
-                pressbegin = 0;
+                pressbegin.tv_sec = 0;
+                pressbegin.tv_usec = 0;
                 ispressingkeysym = 0;
             }
         }
@@ -728,7 +733,8 @@ cyclemod() {
 		}
 	}
     pressedmod = 0;
-	pressbegin = 0;
+	pressbegin.tv_sec = 0;
+	pressbegin.tv_usec = 0;
 	ispressingkeysym = 0;
 	currentcyclemod++;
 	if (currentcyclemod >= CYCLEMODS)
