@@ -340,6 +340,7 @@ press(Key *k, KeySym mod) {
 	int overlayidx = -1;
 	k->pressed = !k->pressed;
 
+	if (debug) { printf("Begin press: %ld\n", k->keysym); fflush(stdout); }
 	pressbegin = 0;
 	ispressingkeysym = 0;
 
@@ -360,6 +361,7 @@ press(Key *k, KeySym mod) {
 				ispressingkeysym = k->keysym;
 			}
 		} else {
+			if (debug) { printf("Simulating press: %ld\n", k->keysym); fflush(stdout); }
 			for(i = 0; i < LENGTH(keys); i++) {
 				if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
 					simulate_keypress(keys[i].keysym);
