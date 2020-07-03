@@ -1,7 +1,6 @@
 static const Bool wmborder = True;
 static int fontsize = 20;
 static double overlay_delay = 1.0;
-static int debug = 1;
 static const char *fonts[] = {
 	"Terminus:bold:size=20"
 };

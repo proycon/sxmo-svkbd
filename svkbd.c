@@ -107,6 +107,7 @@ static KeySym overlaykeysym = 0; //keysym for which the overlay is presented
 static int tmp_keycode = 1;
 static int rows = 0, ww = 0, wh = 0, wx = 0, wy = 0;
 static char *name = "svkbd";
+static int debug = 0;
 
 static KeySym ispressingkeysym;
 
@@ -710,7 +711,7 @@ updatekeys() {
 
 void
 usage(char *argv0) {
-	fprintf(stderr, "usage: %s [-hdv] [-g geometry]\n", argv0);
+	fprintf(stderr, "usage: %s [-hdvD] [-g geometry] [-fn font]\n", argv0);
 	exit(1);
 }
 
@@ -828,6 +829,8 @@ main(int argc, char *argv[]) {
 			i++;
         } else if (!strcmp(argv[i], "-fn")) { /* font or font set */
 			fonts[0] = argv[++i];
+		} else if(!strcmp(argv[i], "-D")) {
+            debug = 1;
 		} else if(!strcmp(argv[i], "-h")) {
 			usage(argv[0]);
 		}
@@ -843,4 +846,3 @@ main(int argc, char *argv[]) {
 	XCloseDisplay(dpy);
 	return 0;
 }
-
