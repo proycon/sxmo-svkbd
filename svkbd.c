@@ -526,6 +526,7 @@ run(void) {
         if (ispressing && ispressingkeysym) {
             now = clock();
 			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
+			if (debug == 2) { printf("%f\n", duration); fflush(stdout); }
             if (duration >= overlay_delay) {
 				if (debug) { printf("press duration %f\n", duration); fflush(stdout); }
 				cyclemodidx = iscyclemod(ispressingkeysym);
