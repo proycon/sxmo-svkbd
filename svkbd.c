@@ -408,7 +408,7 @@ unpress(Key *k, KeySym mod) {
 			now = clock();
 			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
 			if (duration < overlay_delay) {
-				if (debug) { printf("Delayed simulation of press after release: %d\n", k->keysym); fflush(stdout); }
+				if (debug) { printf("Delayed simulation of press after release: %ld\n", k->keysym); fflush(stdout); }
 				//simulate the press event, as we postponed it earlier in press()
 				for(i = 0; i < LENGTH(keys); i++) {
 					if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
