@@ -447,10 +447,22 @@ unpress(Key *k, KeySym mod) {
 				simulate_keypress(k->keysym);
                 pressbegin = 0;
 			} else {
+				showoverlay(hasoverlay(ispressingkeysym));
+                pressbegin = 0;
+                ispressingkeysym = 0;
 				return;
 			}
 		}
 	}
+
+	if (debug) {
+		if (k) {
+			printf("Simulation of release: %ld\n", k->keysym); fflush(stdout);
+		} else {
+			printf("Simulation of release (all keys)"); fflush(stdout);
+		}
+	}
+
 
 	for(i = 0; i < LENGTH(keys); i++) {
 		if(keys[i].pressed && !IsModifierKey(keys[i].keysym)) {
@@ -722,6 +734,7 @@ cyclemod() {
 	keys[CYCLEMODKEY].label = cyclemods[currentcyclemod].label;
 	keys[CYCLEMODKEY].keysym = cyclemods[currentcyclemod].keysym;
 	drawkey(&keys[CYCLEMODKEY]);
+	XSync(dpy, False);
 }
 
 void
