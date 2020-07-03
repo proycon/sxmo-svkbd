@@ -21,12 +21,12 @@
 #endif
 #include <signal.h>
 #include <time.h>
+#include <unistd.h>
 #include <sys/select.h>
 #include <sys/time.h>
 
 #include "drw.h"
 #include "util.h"
-
 
 
 /* macros */
@@ -514,6 +514,7 @@ run(void) {
 	tv.tv_usec = 0;
 	tv.tv_sec = 1;
 
+
 	//XSync(dpy, False);
 	XFlush(dpy);
 
@@ -527,23 +528,25 @@ run(void) {
 					(handler[ev.type])(&ev); /* call handler */
 				}
 			}
-		}
-        if (ispressing && ispressingkeysym) {
-			duration = get_press_duration();
-			if (debug == 2) { printf("%f\n", duration); fflush(stdout); }
-            if (get_press_duration() >= overlay_delay) {
-				if (debug) { printf("press duration %f\n", duration); fflush(stdout); }
-				cyclemodidx = iscyclemod(ispressingkeysym);
-				if (cyclemodidx != -1) {
-					cyclemod();
-				} else {
-					showoverlay(hasoverlay(ispressingkeysym));
+		} else {
+			if (ispressing && ispressingkeysym) {
+				duration = get_press_duration();
+				if (debug == 2) { printf("%f\n", duration); fflush(stdout); }
+				if (get_press_duration() >= overlay_delay) {
+					if (debug) { printf("press duration %f\n", duration); fflush(stdout); }
+					cyclemodidx = iscyclemod(ispressingkeysym);
+					if (cyclemodidx != -1) {
+						cyclemod();
+					} else {
+						showoverlay(hasoverlay(ispressingkeysym));
+					}
+					pressbegin.tv_sec = 0;
+					pressbegin.tv_usec = 0;
+					ispressingkeysym = 0;
 				}
-                pressbegin.tv_sec = 0;
-                pressbegin.tv_usec = 0;
-                ispressingkeysym = 0;
-            }
-        }
+			}
+		}
+		usleep(250000L);
 	}
 }
 
