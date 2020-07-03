@@ -1,6 +1,7 @@
 static const Bool wmborder = True;
 static int fontsize = 16;
 static double overlay_delay = 1.0;
+static int debug = 1;
 static const char *fonts[] = {
 	"monospace:bold:size=17"
 };

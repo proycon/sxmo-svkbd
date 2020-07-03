@@ -96,6 +96,7 @@ static KeySym pressedmod = 0;
 static clock_t pressbegin = 0;
 static int currentlayer = 0;
 static int currentoverlay = -1; // -1 = no overlay
+static KeySym overlaykeysym = 0; //keysym for which the overlay is presented
 static int tmp_keycode = 1;
 static int rows = 0, ww = 0, wh = 0, wx = 0, wy = 0;
 static char *name = "svkbd";
@@ -324,6 +325,9 @@ press(Key *k, KeySym mod) {
 	int overlayidx = -1;
 	k->pressed = !k->pressed;
 
+	pressbegin = 0;
+	ispressingkeysym = 0;
+
 	if(!IsModifierKey(k->keysym)) {
 		if (currentoverlay == -1)
 			overlayidx = hasoverlay(k->keysym);
@@ -399,11 +403,12 @@ unpress(Key *k, KeySym mod) {
 	}
 
 
-	if (pressbegin && k->keysym == ispressingkeysym) {
+	if (pressbegin && k && k->keysym == ispressingkeysym) {
 		if (currentoverlay == -1) {
 			now = clock();
 			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
 			if (duration < overlay_delay) {
+				if (debug) { printf("Delayed simulation of press after release: %d\n", k->keysym); fflush(stdout); }
 				//simulate the press event, as we postponed it earlier in press()
 				for(i = 0; i < LENGTH(keys); i++) {
 					if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
@@ -415,9 +420,11 @@ unpress(Key *k, KeySym mod) {
 					simulate_keypress(mod);
 				}
 				simulate_keypress(k->keysym);
+                pressbegin = 0;
+			} else {
+				return;
 			}
 		}
-		pressbegin = 0;
 	}
 
 	for(i = 0; i < LENGTH(keys); i++) {
@@ -443,7 +450,7 @@ unpress(Key *k, KeySym mod) {
 		}
 	}
 
-	if (currentoverlay != -1 && k->keysym != ispressingkeysym) {
+	if (currentoverlay != -1 && k && k->keysym != overlaykeysym) {
 		hideoverlay();
 	}
 }
@@ -480,6 +487,7 @@ run(void) {
             now = clock();
 			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
             if (duration >= overlay_delay) {
+				if (debug) { printf("press duration %f\n", duration); fflush(stdout); }
                 showoverlay(hasoverlay(ispressingkeysym));
                 pressbegin = 0;
                 ispressingkeysym = 0;
@@ -657,6 +665,7 @@ cyclelayer() {
 	currentlayer++;
 	if (currentlayer >= LAYERS)
 		currentlayer = 0;
+	if (debug) { printf("Cycling to layer %d\n", currentlayer); fflush(stdout); }
 	memcpy(&keys, layers[currentlayer], sizeof(keys_en));
 	updatekeys();
 	drawkeyboard();
@@ -664,6 +673,7 @@ cyclelayer() {
 
 void
 showoverlay(int idx) {
+	if (debug) { printf("Showing overlay %d\n", idx); fflush(stdout); }
 	int i,j;
 	//unpress existing key (visually only)
 	for(i = 0; i < LENGTH(keys); i++) {
@@ -682,14 +692,18 @@ showoverlay(int idx) {
 		keys[j].label = overlay[i].label;
 		keys[j].keysym = overlay[i].keysym;
 	}
+	currentoverlay = idx;
+	overlaykeysym = ispressingkeysym;
 	updatekeys();
 	drawkeyboard();
-	currentoverlay = idx;
+	XSync(dpy, False);
 }
 
 void
 hideoverlay() {
+	if (debug) { printf("Hiding overlay %d\n", currentoverlay); fflush(stdout); }
 	currentoverlay = -1;
+	overlaykeysym = 0;
 	currentlayer = -1;
 	cyclelayer();
 }
