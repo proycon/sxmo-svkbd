@@ -54,7 +54,7 @@ static Key keys_en[KEYS] = {
         { "↲ Enter", XK_Return, 2 },
 };
 
-#define OVERLAYS 107
+#define OVERLAYS 136
 static Key overlay[OVERLAYS] = {
         { 0, XK_a }, //Overlay for a
         //---
@@ -196,7 +196,39 @@ static Key overlay[OVERLAYS] = {
         //---
         { "ř", XK_rcaron },
         { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+		//---
+        { 0, 0x101f642 }, //Emoji overlay
+        //---
+        { "😀", 0x101f600 },
+        { "😁", 0x101f601 },
+        { "😂", 0x101f602 },
+        { "😃", 0x101f603 },
+        { "😄", 0x101f604 },
+        { "😅", 0x101f605 },
+        { "😆", 0x101f606 },
+        { "😇", 0x101f607 },
+        { "😈", 0x101f608 },
+        { "😉", 0x101f609 },
+        { "😊", 0x101f60a },
+        { "😋", 0x101f60b },
+        { "😌", 0x101f60c },
+        { "😍", 0x101f60d },
+        { "😎", 0x101f60e },
+        { "😏", 0x101f60f },
+        { "😐", 0x101f610 },
+        { "😒", 0x101f612 },
+        { "😓", 0x101f613 },
+        { "😛", 0x101f61b },
+        { "😮", 0x101f62e },
+        { "😟", 0x101f61f },
+        { "😟", 0x101f620 },
+        { "😢", 0x101f622 },
+        { "😭", 0x101f62d },
+        { "😳", 0x101f633 },
+        { "😴", 0x101f634 },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
 };
+
 
 static Key keys_symbols[KEYS] = {
   { "1!", XK_1, 1 },
@@ -225,6 +257,54 @@ static Key keys_symbols[KEYS] = {
 
   { 0 }, /* New row */
 
+  { "🙂", 0x101f642, 1 },
+  { "⇤", XK_Home, 1 },
+  { "←", XK_Left, 1 },
+  { "→", XK_Right, 1 },
+  { "⇥", XK_End, 1 },
+  { "⇊", XK_Next, 1 },
+  { "⇈", XK_Prior, 1 },
+  { "Tab", XK_Tab, 1 },
+  { "⇍ Bksp", XK_BackSpace, 2 },
+
+  { 0 }, /* New row */
+  { "↺", XK_Cancel, 1},
+  { "Shft", XK_Shift_L, 1 },
+  { "↓", XK_Down, 1 },
+  { "↑", XK_Up, 1 },
+  { "", XK_space, 2 },
+  { "Esc", XK_Escape, 1 },
+  { "Ctrl", XK_Control_L, 1 },
+  { "↲ Enter", XK_Return, 2 },
+};
+
+static Key keys_functions[KEYS] = {
+  { "F1", XK_F1, 1 },
+  { "F2", XK_F2, 1 },
+  { "F3", XK_F3, 1 },
+  { "F4", XK_F4, 1 },
+  { "F5", XK_F5, 1 },
+  { "F6", XK_F6, 1 },
+  { "F7", XK_F7, 1 },
+  { "F8", XK_F8, 1 },
+  { "F9", XK_F9, 1 },
+  { "F10", XK_F10, 1 },
+
+  { 0 }, /* New row */
+
+  { "⏵", XF86XK_AudioPlay, 1 },
+  { "⏺", XF86XK_AudioRecord, 1 },
+  { "⏹", XF86XK_AudioStop, 1 },
+  { "⏮", XF86XK_AudioPrev, 1 },
+  { "⏭", XF86XK_AudioNext, 1 },
+  { "M", XF86XK_AudioMute, 1 },
+  { "V-", XF86XK_AudioLowerVolume, 1 },
+  { "V+", XF86XK_AudioRaiseVolume, 1 },
+  { "B-", XF86XK_MonBrightnessDown, 1 },
+  { "B+", XF86XK_MonBrightnessUp, 1 },
+
+  { 0 }, /* New row */
+
   { "", XK_Shift_L|XK_bar, 1 },
   { "⇤", XK_Home, 1 },
   { "←", XK_Left, 1 },
@@ -238,22 +318,32 @@ static Key keys_symbols[KEYS] = {
   { 0 }, /* New row */
   { "↺", XK_Cancel, 1},
   { "Shft", XK_Shift_L, 1 },
-  /*{ "L", XK_Left, 1 },*/
   { "↓", XK_Down, 1 },
   { "↑", XK_Up, 1 },
-  /*{ "R", XK_Right, 1 },*/
   { "", XK_space, 2 },
   { "Esc", XK_Escape, 1 },
   { "Ctrl", XK_Control_L, 1 },
-  /*{ "Alt", XK_Alt_L, 1 },*/
   { "↲ Enter", XK_Return, 2 },
 };
 
-#define LAYERS 2
+
+#define LAYERS 3
 static Key* layers[LAYERS] = {
     keys_en,
     keys_symbols,
+    keys_functions,
 };
+
+
+#define CYCLEMODKEY (KEYS - 3) //third last key (Escape)
+#define CYCLEMODS 4
+static Key cyclemods[CYCLEMODS] = {
+  { "Esc", XK_Escape, 1 },
+  { "Alt", XK_Alt_L, 1 },
+  { "AGr", XK_Alt_R, 1 },
+  { "Sup", XK_Super_L, 1 },
+};
+
 
 Buttonmod buttonmods[] = {
         { XK_Shift_L, Button2 },

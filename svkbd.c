@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <X11/keysym.h>
 #include <X11/keysymdef.h>
+#include <X11/XF86keysym.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -30,6 +31,7 @@
 /* macros */
 #define LENGTH(x)       (sizeof x / sizeof x[0])
 #define TEXTW(X)        (drw_fontset_getwidth(drw, (X)))
+#define STRINGTOKEYSYM(X)			(XStringToKeySym(X))
 
 /* enums */
 enum { SchemeNorm, SchemePress, SchemeHighlight, SchemeLast };
@@ -96,6 +98,7 @@ static KeySym pressedmod = 0;
 static clock_t pressbegin = 0;
 static int currentlayer = 0;
 static int currentoverlay = -1; // -1 = no overlay
+static int currentcyclemod = 0;
 static KeySym overlaykeysym = 0; //keysym for which the overlay is presented
 static int tmp_keycode = 1;
 static int rows = 0, ww = 0, wh = 0, wx = 0, wy = 0;
@@ -310,6 +313,17 @@ hasoverlay(KeySym keysym) {
 	return -1;
 }
 
+int
+iscyclemod(KeySym keysym) {
+	int begin, i;
+	begin = 0;
+	for(i = 0; i < CYCLEMODS; i++) {
+		if(cyclemods[i].keysym == keysym) {
+			return i;
+		}
+	}
+	return -1;
+}
 
 void
 leavenotify(XEvent *e) {
@@ -328,7 +342,15 @@ press(Key *k, KeySym mod) {
 	pressbegin = 0;
 	ispressingkeysym = 0;
 
-	if(!IsModifierKey(k->keysym)) {
+	int do_press = 1;
+	int cm = iscyclemod(k->keysym);
+	if (cm != -1) {
+		if (!pressbegin) {
+			//record the begin of the press, don't simulate the actual keypress yet
+			pressbegin = clock();
+			ispressingkeysym = k->keysym;
+		}
+	} else if(!IsModifierKey(k->keysym)) {
 		if (currentoverlay == -1)
 			overlayidx = hasoverlay(k->keysym);
 		if (overlayidx != -1) {
@@ -337,8 +359,8 @@ press(Key *k, KeySym mod) {
 				pressbegin = clock();
 				ispressingkeysym = k->keysym;
 			}
+			do_press = 0;
 		} else {
-
 			for(i = 0; i < LENGTH(keys); i++) {
 				if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
 					simulate_keypress(keys[i].keysym);
@@ -359,6 +381,10 @@ press(Key *k, KeySym mod) {
 	}
 	drawkey(k);
 }
+
+
+
+
 
 int tmp_remap(KeySym keysym) {
 	XChangeKeyboardMapping(dpy, tmp_keycode, 1, &keysym, 1);
@@ -463,6 +489,7 @@ run(void) {
 	struct timeval tv;
 	time_t now;
 	double duration = 0.0;
+	int cyclemodidx;
 
 
 	xfd = ConnectionNumber(dpy);
@@ -488,7 +515,12 @@ run(void) {
 			duration = (double) (now - pressbegin) / CLOCKS_PER_SEC;
             if (duration >= overlay_delay) {
 				if (debug) { printf("press duration %f\n", duration); fflush(stdout); }
-                showoverlay(hasoverlay(ispressingkeysym));
+				cyclemodidx = iscyclemod(ispressingkeysym);
+				if (cyclemodidx != -1) {
+					cyclemod(cyclemodidx);
+				} else {
+					showoverlay(hasoverlay(ispressingkeysym));
+				}
                 pressbegin = 0;
                 ispressingkeysym = 0;
             }
@@ -672,6 +704,17 @@ cyclelayer() {
 }
 
 void
+cyclemod() {
+	currentcyclemod++;
+	if (currentcyclemod >= CYCLEMODS)
+		currentcyclemod = 0;
+	if (debug) { printf("Cycling modifier to %d\n", currentcyclemod); fflush(stdout); }
+	keys[CYCLEMODKEY].label = cyclemods[currentcyclemod].label;
+	keys[CYCLEMODKEY].keysym = cyclemods[currentcyclemod].keysym;
+	drawkey(&keys[CYCLEMODKEY]);
+}
+
+void
 showoverlay(int idx) {
 	if (debug) { printf("Showing overlay %d\n", idx); fflush(stdout); }
 	int i,j;
@@ -707,6 +750,7 @@ hideoverlay() {
 	currentlayer = -1;
 	cyclelayer();
 }
+
 
 void
 sigterm(int sig)
