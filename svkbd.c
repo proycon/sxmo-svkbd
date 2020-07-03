@@ -104,6 +104,7 @@ static int currentlayer = 0;
 static int currentoverlay = -1; // -1 = no overlay
 static int currentcyclemod = 0;
 static KeySym overlaykeysym = 0; //keysym for which the overlay is presented
+static int releaseprotect = 0; //set to 1 after overlay is shown, protecting against immediate release
 static int tmp_keycode = 1;
 static int rows = 0, ww = 0, wh = 0, wx = 0, wy = 0;
 static char *name = "svkbd";
@@ -496,8 +497,12 @@ unpress(Key *k, KeySym mod) {
 		}
 	}
 
-	if (currentoverlay != -1 && k && k->keysym != overlaykeysym) {
-		hideoverlay();
+	if (currentoverlay != -1) {
+		if (releaseprotect) {
+			releaseprotect = 0;
+		} else {
+			hideoverlay();
+		}
 	}
 }
 
@@ -773,6 +778,7 @@ showoverlay(int idx) {
 	}
 	currentoverlay = idx;
 	overlaykeysym = ispressingkeysym;
+	releaseprotect = 1;
 	updatekeys();
 	drawkeyboard();
 	XSync(dpy, False);
