@@ -66,6 +66,7 @@ static void drawkeyboard(void);
 static void drawkey(Key *k);
 static void expose(XEvent *e);
 static Key *findkey(int x, int y);
+static int iscyclemod(KeySym keysym);
 static void leavenotify(XEvent *e);
 static void press(Key *k, KeySym mod);
 static void run(void);
@@ -73,6 +74,7 @@ static void setup(void);
 static void simulate_keypress(KeySym keysym);
 static void simulate_keyrelease(KeySym keysym);
 static void showoverlay(int idx);
+static void cyclemod();
 static void hideoverlay();
 static void cyclelayer();
 static void unpress(Key *k, KeySym mod);
@@ -315,8 +317,7 @@ hasoverlay(KeySym keysym) {
 
 int
 iscyclemod(KeySym keysym) {
-	int begin, i;
-	begin = 0;
+	int i;
 	for(i = 0; i < CYCLEMODS; i++) {
 		if(cyclemods[i].keysym == keysym) {
 			return i;
@@ -342,7 +343,6 @@ press(Key *k, KeySym mod) {
 	pressbegin = 0;
 	ispressingkeysym = 0;
 
-	int do_press = 1;
 	int cm = iscyclemod(k->keysym);
 	if (cm != -1) {
 		if (!pressbegin) {
@@ -359,7 +359,6 @@ press(Key *k, KeySym mod) {
 				pressbegin = clock();
 				ispressingkeysym = k->keysym;
 			}
-			do_press = 0;
 		} else {
 			for(i = 0; i < LENGTH(keys); i++) {
 				if(keys[i].pressed && IsModifierKey(keys[i].keysym)) {
@@ -705,6 +704,15 @@ cyclelayer() {
 
 void
 cyclemod() {
+    int i;
+	//unpress existing keys
+	for(i = 0; i < LENGTH(keys); i++) {
+		if(keys[i].pressed) {
+			keys[i].pressed = 0;
+			drawkey(&keys[i]);
+		}
+	}
+    pressedmod = 0;
 	currentcyclemod++;
 	if (currentcyclemod >= CYCLEMODS)
 		currentcyclemod = 0;

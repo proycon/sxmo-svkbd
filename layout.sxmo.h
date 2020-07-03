@@ -336,12 +336,11 @@ static Key* layers[LAYERS] = {
 
 
 #define CYCLEMODKEY (KEYS - 3) //third last key (Escape)
-#define CYCLEMODS 4
+#define CYCLEMODS 3
 static Key cyclemods[CYCLEMODS] = {
   { "Esc", XK_Escape, 1 },
   { "Alt", XK_Alt_L, 1 },
-  { "AGr", XK_Alt_R, 1 },
-  { "Sup", XK_Super_L, 1 },
+  { "AGr", XK_ISO_Level3_Shift, 1 },
 };
 
 
