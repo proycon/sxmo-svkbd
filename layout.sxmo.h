@@ -24,7 +24,7 @@ static Key keys_en[KEYS] = {
         { 0, XK_j, 1 },
         { 0, XK_k, 1 },
         { 0, XK_l, 1 },
-        { ";:", XK_colon, 1 },
+        { "/?", XK_slash, 1 },
         /*{ "'", XK_apostrophe, 2 },*/
 
         { 0 }, /* New row */
@@ -54,7 +54,7 @@ static Key keys_en[KEYS] = {
         { "↲ Enter", XK_Return, 2 },
 };
 
-#define OVERLAYS 136
+#define OVERLAYS 165
 static Key overlay[OVERLAYS] = {
         { 0, XK_a }, //Overlay for a
         //---
@@ -197,7 +197,7 @@ static Key overlay[OVERLAYS] = {
         { "ř", XK_rcaron },
         { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
 		//---
-        { 0, 0x101f642 }, //Emoji overlay
+        { "🙂", 0x101f642 }, //emoji overlay
         //---
         { "😀", 0x101f600 },
         { "😁", 0x101f601 },
@@ -226,6 +226,37 @@ static Key overlay[OVERLAYS] = {
         { "😭", 0x101f62d },
         { "😳", 0x101f633 },
         { "😴", 0x101f634 },
+        { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
+        //--
+		{ "/?", XK_slash }, //punctuation overlay
+		//--
+		{ "1!", XK_1, 1 },
+		{ "2@", XK_2, 1 },
+		{ "3#", XK_3, 1 },
+		{ "4$", XK_4, 1 },
+		{ "5%", XK_5, 1 },
+		{ "6^", XK_6, 1 },
+		{ "7&", XK_7, 1 },
+		{ "8*", XK_8, 1 },
+		{ "9(", XK_9, 1 },
+		{ "0)", XK_0, 1 },
+		{ "'\"", XK_apostrophe, 1 },
+		{ "`~", XK_grave, 1 },
+		{ "-_", XK_minus, 1 },
+		{ "=+", XK_plus, 1 },
+		{ "[{", XK_bracketleft, 1 },
+		{ "]}", XK_bracketright, 1 },
+		{ ",<", XK_comma, 1 },
+		{ ".>", XK_period, 1 },
+		{ "/?", XK_slash, 1 },
+		{ "\\|", XK_backslash, 1 },
+		{ "¡", XK_exclamdown, 1 },
+		{ "?", XK_questiondown, 1 },
+		{ "°", XK_degree, 1 },
+		{ "£", XK_sterling, 1 },
+		{ "€", XK_EuroSign, 1 },
+		{ "¥", XK_yen, 1 },
+		{ ";:", XK_colon, 1 },
         { 0, XK_Cancel }, /* XK_Cancel signifies  overlay boundary */
 };
 
@@ -263,7 +294,7 @@ static Key keys_symbols[KEYS] = {
   { "→", XK_Right, 1 },
   { "⇥", XK_End, 1 },
   { "⇊", XK_Next, 1 },
-  { "⇈", XK_Prior, 1 },
+  { ";:", XK_colon, 1 },
   { "Tab", XK_Tab, 1 },
   { "⇍ Bksp", XK_BackSpace, 2 },
 
@@ -305,7 +336,7 @@ static Key keys_functions[KEYS] = {
 
   { 0 }, /* New row */
 
-  { "", XK_Shift_L|XK_bar, 1 },
+  { "Del", XK_Delete, 1 },
   { "⇤", XK_Home, 1 },
   { "←", XK_Left, 1 },
   { "→", XK_Right, 1 },
