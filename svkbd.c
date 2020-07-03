@@ -546,7 +546,7 @@ run(void) {
 				}
 			}
 		}
-		usleep(250000L);
+		usleep(100000L);
 	}
 }
 
