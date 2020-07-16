@@ -57,7 +57,7 @@ static Key keys_en[KEYS] = {
         { "↲ Enter", XK_Return, 2 },
 };
 
-#define OVERLAYS 195
+#define OVERLAYS 197
 static Key overlay[OVERLAYS] = {
         { 0, XK_a }, //Overlay for a
         //---
