@@ -271,13 +271,13 @@ drawkey(Key *k) {
 	drw_rect(drw, k->x, k->y, k->w, k->h, 1, 1);
 	drw_rect(drw, k->x, k->y, k->w, k->h, 0, 0);
 
-    if (k->keysym == XK_KP_Insert) {
-        if (enableoverlays) {
-            l = "≅";
-        } else {
-            l = "≇";
-        }
-    } else if(k->label) {
+	if (k->keysym == XK_KP_Insert) {
+		if (enableoverlays) {
+			l = "≅";
+		} else {
+			l = "≇";
+		}
+	} else if(k->label) {
 		l = k->label;
 	} else {
 		l = XKeysymToString(k->keysym);
