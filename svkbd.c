@@ -108,6 +108,7 @@ static int tmp_keycode = 1;
 static int rows = 0, ww = 0, wh = 0, wx = 0, wy = 0;
 static char *name = "svkbd";
 static int debug = 0;
+static int numlayers = 0;
 
 static KeySym ispressingkeysym;
 
@@ -117,6 +118,8 @@ Bool sigtermd = False;
 /* configuration, allows nested code to access above variables */
 #include "config.h"
 #include "layout.h"
+
+static Key* layers[LAYERS];
 
 void
 motionnotify(XEvent *e)
@@ -704,11 +707,12 @@ updatekeys() {
 
 void
 usage(char *argv0) {
-	fprintf(stderr, "usage: %s [-hdvDO] [-g geometry] [-fn font]\n", argv0);
+	fprintf(stderr, "usage: %s [-hdvDOl] [-g geometry] [-fn font]\n", argv0);
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "  -d         - Set Dock Window Type\n");
 	fprintf(stderr, "  -D         - Enable debug\n");
 	fprintf(stderr, "  -O         - Disable overlays\n");
+	fprintf(stderr, "  -l         - Comma separated list of layers to enable\n");
 	fprintf(stderr, "  -fn [font] - Set font (Xft, e.g: DejaVu Sans:bold:size=20)\n");
 	exit(1);
 }
@@ -716,7 +720,7 @@ usage(char *argv0) {
 void
 cyclelayer() {
 	currentlayer++;
-	if (currentlayer >= LAYERS)
+	if (currentlayer >= numlayers)
 		currentlayer = 0;
 	if (debug) { printf("Cycling to layer %d\n", currentlayer); fflush(stdout); }
 	memcpy(&keys, layers[currentlayer], sizeof(keys_en));
@@ -726,11 +730,11 @@ cyclelayer() {
 
 void
 togglelayer() {
-    if (currentlayer > 0) {
-        currentlayer = 0;
-    } else {
-        currentlayer = 1;
-    }
+	if (currentlayer > 0) {
+		currentlayer = 0;
+	} else if (numlayers > 1) {
+		currentlayer = 1;
+	}
 	if (debug) { printf("Toggling layer %d\n", currentlayer); fflush(stdout); }
 	memcpy(&keys, layers[currentlayer], sizeof(keys_en));
 	updatekeys();
@@ -784,13 +788,55 @@ sigterm(int sig)
 	sigtermd = True;
 }
 
+
+void
+init_layers(char * layer_names_list) {
+	if (layer_names_list == NULL) {
+		numlayers = LAYERS;
+		memcpy(&layers, &available_layers, sizeof(available_layers));
+	} else {
+		char * s;
+		int j;
+		s = strtok(layer_names_list, ",");
+		while (s != NULL) {
+			if (numlayers+1 > LAYERS) die("too many layers specified");
+			int found = 0;
+			for (j = 0; j < LAYERS; j++) {
+				if (strcmp(layer_names[j], s) == 0) {
+					layers[numlayers] = available_layers[j];
+					printf("Adding layer %s\n", s);
+					found = 1;
+					break;
+				}
+			}
+			if (!found) {
+				fprintf(stderr, "Undefined layer: %s\n", s);
+				exit(3);
+			}
+			numlayers++;
+			s = strtok(NULL,",");
+		}
+	}
+}
+
 int
 main(int argc, char *argv[]) {
 	int i, xr, yr, bitm;
 	unsigned int wr, hr;
+	char * layer_names_list = NULL;
 
 	memcpy(&keys, &keys_en, sizeof(keys_en));
 	signal(SIGTERM, sigterm);
+
+	const char* enableoverlays_env = getenv("SVKBD_ENABLEOVERLAYS");
+	if (enableoverlays_env != NULL) enableoverlays = atoi(enableoverlays_env);
+	const char* layers_env = getenv("SVKBD_LAYERS");
+	if (layers_env != NULL) {
+		layer_names_list = malloc(128);
+		strcpy(layer_names_list, layers_env);
+	}
+
+
 	for (i = 1; argv[i]; i++) {
 		if(!strcmp(argv[i], "-v")) {
 			die("svkbd-"VERSION", © 2006-2020 svkbd engineers,"
@@ -824,8 +870,15 @@ main(int argc, char *argv[]) {
 			usage(argv[0]);
 		} else if(!strcmp(argv[i], "-O")) {
 			enableoverlays = 0;
+		} else if(!strcmp(argv[i], "-l")) {
+			if(i >= argc - 1)
+				continue;
+			if (layer_names_list == NULL) layer_names_list = malloc(128);
+			strcpy(layer_names_list, argv[i+1]);
 		}
 	}
+
+	init_layers(layer_names_list);
 
 	if(!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		fprintf(stderr, "warning: no locale support\n");

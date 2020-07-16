@@ -45,7 +45,7 @@ static Key keys_en[KEYS] = {
 
         { 0 }, /* New row */
         { "↺", XK_Cancel, 1},
-        { "Shft", XK_Shift_L, 2 },
+        { "Shift", XK_Shift_L, 2 },
         /*{ "L", XK_Left, 1 },*/
         { "Ctrl", XK_Control_L, 1 },
         { "Alt", XK_Alt_L, 1 },
@@ -358,7 +358,7 @@ static Key keys_symbols[KEYS] = {
 
   { 0 }, /* New row */
   { "↺", XK_Cancel, 1},
-  { "Shft", XK_Shift_L, 2 },
+  { "Shift", XK_Shift_L, 2 },
   { "Ctrl", XK_Control_L, 1 },
   { "Alt", XK_Alt_L, 1 },
   { "", XK_space, 2 },
@@ -409,7 +409,7 @@ static Key keys_functions[KEYS] = {
 
   { 0 }, /* New row */
   { "↺", XK_Cancel, 1},
-  { "Shft", XK_Shift_L, 2 },
+  { "Shift", XK_Shift_L, 2 },
   { "Ctrl", XK_Control_L, 1 },
   { "Alt", XK_Alt_L, 1 },
   { "", XK_space, 2 },
@@ -462,7 +462,7 @@ static Key keys_ru[KEYS] = {
 
         { 0 }, /* New row */
         { "↺", XK_Cancel, 1},
-        { "Shft", XK_Shift_L, 2 },
+        { "Shift", XK_Shift_L, 2 },
         /*{ "L", XK_Left, 1 },*/
         { "Ctrl", XK_Control_L, 1 },
         { "Alt", XK_Alt_L, 1 },
@@ -473,8 +473,16 @@ static Key keys_ru[KEYS] = {
         /*{ "Alt", XK_Alt_L, 1 },*/
         { "↲ Enter", XK_Return, 2 },
 };
+
 #define LAYERS 4
-static Key* layers[LAYERS] = {
+static char* layer_names[LAYERS] = {
+    "en",
+    "symbols",
+    "functions",
+    "ru",
+};
+
+static Key* available_layers[LAYERS] = {
     keys_en,
     keys_symbols,
     keys_functions,
